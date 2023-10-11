@@ -5,14 +5,14 @@ from pycuda.compiler import SourceModule
 from PIL import Image
 
 # Define the parameters for the Mandelbrot set
-# width, height = 24000, 24000
-width, height = 16000, 16000
-max_iterations = 255
-resolution = .001
-center_x = -.102
-center_y = .957
+width, height = 24000, 24000
+# width, height = 1920, 1080
+max_iterations = 2047
+resolution = 0.00000001
+center_x = -1.484585267
+center_y = 0
 
-aspect = (height / width) / 2
+aspect = (height / width)
 
 x_min = center_x - resolution
 x_max = center_x + resolution
@@ -28,17 +28,17 @@ c = X + 1j * Y
 
 # Create a CUDA kernel to compute the Mandelbrot set
 mandelbrot_kernel = """
-__global__ void mandelbrot(int *output, int width, int height, float x_min, float x_max, float y_min, float y_max, int max_iterations) {
+__global__ void mandelbrot(int *output, int width, int height, double x_min, double x_max, double y_min, double y_max, int max_iterations) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     int idy = blockIdx.y * blockDim.y + threadIdx.y;
     if (idx < width && idy < height) {
-        float x = x_min + idx * (x_max - x_min) / (float)(width - 1);
-        float y = y_min + idy * (y_max - y_min) / (float)(height - 1);
-        float2 z = make_float2(x, y);
-        float2 c = z;
+        double x = x_min + idx * (x_max - x_min) / (double)(width - 1);
+        double y = y_min + idy * (y_max - y_min) / (double)(height - 1);
+        double2 z = make_double2(x, y);
+        double2 c = z;
         int iteration = 0;
         while (iteration < max_iterations && z.x * z.x + z.y * z.y < 4.0) {
-            float temp = z.x * z.x - z.y * z.y + c.x;
+            double temp = z.x * z.x - z.y * z.y + c.x;
             z.y = 2.0 * z.x * z.y + c.y;
             z.x = temp;
             iteration++;
@@ -62,8 +62,8 @@ block_size = (16, 16, 1)  # Specify a third dimension for the block size
 grid_size = (width // block_size[0] + 1, height // block_size[1] + 1, 1)
 
 # Compute the Mandelbrot set on the GPU
-mandelbrot_gpu(output_gpu, np.int32(width), np.int32(height), np.float32(x_min), np.float32(x_max),
-               np.float32(y_min), np.float32(y_max), np.int32(max_iterations),
+mandelbrot_gpu(output_gpu, np.int32(width), np.int32(height), np.double(x_min), np.double(x_max),
+               np.double(y_min), np.double(y_max), np.int32(max_iterations),
                block=block_size, grid=grid_size)
 
 # Copy the result back to the CPU
