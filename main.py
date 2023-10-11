@@ -7,17 +7,17 @@ from PIL import Image
 # Define the parameters for the Mandelbrot set
 # width, height = 24000, 24000
 width, height = 16000, 16000
-shift_x = -0.00033
-shift_y = 0.0001
-x_min, x_max = -0.103, -0.101
-y_min, y_max = 0.956, 0.958
 max_iterations = 255
+resolution = .001
+center_x = -.102
+center_y = .957
 
-x_min = x_min + shift_x
-x_max = x_max + shift_x
+aspect = (height / width) / 2
 
-y_max = y_max + shift_y
-y_min = y_min + shift_y
+x_min = center_x - resolution
+x_max = center_x + resolution
+y_min = center_y - (resolution * aspect)
+y_max = center_y + (resolution * aspect)
 
 
 # Create a grid of complex numbers
