@@ -4,6 +4,7 @@ import pycuda.autoinit
 from pycuda.compiler import SourceModule
 from PIL import Image
 import yaml
+import imageio
 
 # User Config
 with open("config.yml", "r") as f:
@@ -28,11 +29,19 @@ center_x = float(config["center_x"])
 center_y = float(config["center_y"])
 use_profile = int(config["use_profile"])
 use_color = bool(config["use_color"])
+do_animation = bool(config["do_animation"])
+
+if do_animation:
+    target_center_x = config["target_center_x"]
+    target_center_y = config["target_center_y"]
+    target_resolution = config["target_resolution"]
+    target_frames = config["target_frames"]
 
 print(f"""
 Using the following configuration:
 Using dark-mode: {use_dark_mode}
 Using profile: {use_profile}
+Doing animation: {do_animation}
 Using color: {use_color}
 Image width: {width}
 Image height: {height}
@@ -53,12 +62,15 @@ elif use_profile == 1:
     center_x = -1.484585267
     center_y = 0
 elif use_profile == 2:
-    width = 6000
-    height = 6000
     max_iterations = 1024*5 if use_color else 1024
     resolution = 0.0001
     center_x = -.717
     center_y = -0.2498
+elif use_profile == 3:
+    max_iterations = 1024*5 if use_color else 1024
+    resolution = 0.00001
+    center_x = -.7173625
+    center_y = -0.2505295
 
 
 aspect = (height / width)
@@ -69,11 +81,13 @@ y_min = center_y - (resolution * aspect)
 y_max = center_y + (resolution * aspect)
 
 
+
 # Create a grid of complex numbers
 x = np.linspace(x_min, x_max, width)
 y = np.linspace(y_min, y_max, height)
 X, Y = np.meshgrid(x, y)
 c = X + 1j * Y
+
 
 # Create a CUDA kernel to compute the Mandelbrot set
 mandelbrot_kernel = """
@@ -111,9 +125,10 @@ block_size = (16, 16, 1)  # Specify a third dimension for the block size
 grid_size = (width // block_size[0] + 1, height // block_size[1] + 1, 1)
 
 # Compute the Mandelbrot set on the GPU
-mandelbrot_gpu(output_gpu, np.int32(width), np.int32(height), np.double(x_min), np.double(x_max),
-               np.double(y_min), np.double(y_max), np.int32(max_iterations),
-               block=block_size, grid=grid_size)
+if not do_animation:
+    mandelbrot_gpu(output_gpu, np.int32(width), np.int32(height), np.double(x_min), np.double(x_max),
+                   np.double(y_min), np.double(y_max), np.int32(max_iterations),
+                   block=block_size, grid=grid_size)
 
 colorize_kernel = """
 __global__ void colorize(unsigned char *output, int *mandelbrot_data, int width, int height, int max_iterations, unsigned char *max_iterations_palette) {
@@ -153,12 +168,55 @@ colorize_grid_size = (
 
 # Colorize the Mandelbrot set on the GPU
 if use_color:
-    colorize_gpu(colored_mandelbrot_gpu, output_gpu, np.int32(width), np.int32(height), np.int32(max_iterations),
-                 block=colorize_block_size, grid=colorize_grid_size)
+    if not do_animation:
+        colorize_gpu(colored_mandelbrot_gpu, output_gpu, np.int32(width), np.int32(height), np.int32(max_iterations),
+                     block=colorize_block_size, grid=colorize_grid_size)
 
-    # Copy the colored image back to the CPU
-    colored_mandelbrot_cpu = np.empty((height, width, 3), dtype=np.uint8)
-    cuda.memcpy_dtoh(colored_mandelbrot_cpu, colored_mandelbrot_gpu)
+        # Copy the colored image back to the CPU
+        colored_mandelbrot_cpu = np.empty((height, width, 3), dtype=np.uint8)
+        cuda.memcpy_dtoh(colored_mandelbrot_cpu, colored_mandelbrot_gpu)
+    else:
+        frames = []
+
+        # TODO: Fix
+
+        center_x_increments = np.linspace(center_x, target_center_x, target_frames)
+        center_y_increments = np.linspace(center_y, target_center_y, target_frames)
+        resolution_increments = np.linspace(resolution, target_resolution, target_frames)
+
+        for i in range(target_frames):
+            print("starting frame " + str(i))
+            # Get the current values for center and resolution
+            current_center_x = center_x_increments[i]
+            current_center_y = center_y_increments[i]
+            current_resolution = resolution_increments[i]
+
+            # Modify x_min, x_max, y_min, and y_max using the current values
+            x_min = current_center_x - current_resolution
+            x_max = current_center_x + current_resolution
+            y_min = current_center_y - (current_resolution * aspect)
+            y_max = current_center_y + (current_resolution * aspect)
+
+            # Calculate the Mandelbrot set for the current frame
+            mandelbrot_gpu(output_gpu, np.int32(width), np.int32(height), np.double(x_min), np.double(x_max),
+                           np.double(y_min), np.double(y_max), np.int32(max_iterations),
+                           block=block_size, grid=grid_size)
+
+            # Colorize the Mandelbrot set for the current frame
+            colorize_gpu(colored_mandelbrot_gpu, output_gpu, np.int32(width), np.int32(height),
+                         np.int32(max_iterations),
+                         block=colorize_block_size, grid=colorize_grid_size)
+
+            # Copy the colored image back to the CPU
+            colored_mandelbrot_cpu = np.empty((height, width, 3), dtype=np.uint8)
+            cuda.memcpy_dtoh(colored_mandelbrot_cpu, colored_mandelbrot_gpu)
+
+            # Convert the current frame to an image and append it to the frames list
+            mandelbrot_image = Image.fromarray(colored_mandelbrot_cpu)
+            frames.append(np.array(mandelbrot_image))
+
+        print(len(frames))
+        imageio.mimsave("mandelbrot_animation.gif", frames, duration=0.2)
 else:
     # Copy the result back to the CPU
     output_cpu = np.empty((height, width), dtype=np.int32)
@@ -167,13 +225,14 @@ else:
     # Normalize the Mandelbrot set data to the range [0, 255]
     output_normalized = (255 * (output_cpu - np.min(output_cpu)) / np.ptp(output_cpu)).astype(np.uint8)
 
-# Convert the colored Mandelbrot set data to an image
-mandelbrot_image = Image.fromarray(colored_mandelbrot_cpu if use_color else output_normalized)
+if not do_animation:
+    # Convert the colored Mandelbrot set data to an image
+    mandelbrot_image = Image.fromarray(colored_mandelbrot_cpu if use_color else output_normalized)
 
-# Save the image to a file
-mandelbrot_image.save("mandelbrot_set.png")
+    # Save the image to a file
+    mandelbrot_image.save("mandelbrot_set.png")
 
-# Display the image
-mandelbrot_image.show()
+    # Display the image
+    mandelbrot_image.show()
 
 output_gpu.free()
