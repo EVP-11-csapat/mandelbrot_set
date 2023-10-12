@@ -4,11 +4,11 @@ use_dark_mode: True
 
 # The width of the image.
 # Default 1920
-width: 1920
+width: 1000
 
 # The height of the image.
 # Default 1080
-height: 1080
+height: 1000
 
 # The higher the value the more details. Causes slower calculations.
 # Default 512
@@ -23,11 +23,11 @@ resolution: 1.5
 
 # The center of the viewport on the x axis. Negative values are to the left.
 # Default -.5
-center_x: -0.7765929020241705
+center_x: -.5
 
 # The center of the viewport on the y axis. Negative values are up.
 # Default 0
-center_y: -0.13664090727687
+center_y: 0
 
 # Use color or not
 # Default True
