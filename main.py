@@ -89,7 +89,7 @@ elif use_profile == 5:
     center_x = -0.7765929020241705
     center_y = -0.13664090727687
 
-
+start_time = time.time()
 aspect = (height / width)
 
 x_min = center_x - resolution
@@ -158,7 +158,6 @@ __global__ void colorize(unsigned char *output, int *mandelbrot_data, int width,
             output[3 * (idy * width + idx) + 1] = [COLORMODE];  // Green component
             output[3 * (idy * width + idx) + 2] = [COLORMODE];  // Blue component
         } else {
-            // Use the same color palette as before
             output[3 * (idy * width + idx)] = iterations * 2;
             output[3 * (idy * width + idx) + 1] = iterations * 4;
             output[3 * (idy * width + idx) + 2] = iterations * 8;
@@ -265,6 +264,10 @@ else:
     output_normalized = (255 * (output_cpu - np.min(output_cpu)) / np.ptp(output_cpu)).astype(np.uint8)
 
 if not do_animation:
+    end_time = time.time()
+
+    dif = end_time - start_time
+    print(dif)
     # Convert the colored Mandelbrot set data to an image
     mandelbrot_image = Image.fromarray(colored_mandelbrot_cpu if use_color else output_normalized)
 
