@@ -17,17 +17,18 @@ max_iterations: 1024*10
 # The resolution of the image. The slower the value the more zoomed in.
 # Default 1.5
 # Limit     0.00000000000001
-resolution: 1.5
+resolution: 0.00000000000000001
+# 0.000000002
 
 # ! All directions are for the virtual "camera" !
 
 # The center of the viewport on the x axis. Negative values are to the left.
 # Default -.5
-center_x: -.5
+center_x: -0.37397341079070684
 
 # The center of the viewport on the y axis. Negative values are up.
 # Default 0
-center_y: 0
+center_y: 0.6597703964249154
 
 # Use color or not
 # Default True
@@ -46,11 +47,12 @@ use_profile: -1
 # Color must be on
 # Profile must be -1
 do_animation: True
-target_center_x: -0.7765929020241705
-target_center_y: -0.13664090727687
-target_resolution: 0.00000000000001
-target_frames: 300
-target_frame_rate: 15
+target_center_x: -0.37397341079070684
+target_center_y: 0.6597703964249154
+target_resolution: 0.00000000000000001
+starting_resolution: 2.5
+target_frames: 100
+target_frame_rate: 20
 should_make_webm: True
 # Default 8000k
-webm_bitrate: 22000k
+webm_bitrate: 30000k

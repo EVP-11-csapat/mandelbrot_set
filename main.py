@@ -41,6 +41,7 @@ if do_animation:
     target_frame_rate = config["target_frame_rate"]
     should_make_webm = bool(config["should_make_webm"])
     webm_bitrate = config["webm_bitrate"]
+    resolution = config["starting_resolution"]
 
 print(f"""
 Using the following configuration:
