@@ -34,6 +34,7 @@ use_color = bool(config["use_color"])
 do_animation = bool(config["do_animation"])
 
 if do_animation:
+    use_color = True
     target_center_x = config["target_center_x"]
     target_center_y = config["target_center_y"]
     target_resolution = config["target_resolution"]

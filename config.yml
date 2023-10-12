@@ -4,20 +4,20 @@ use_dark_mode: True
 
 # The width of the image.
 # Default 1920
-width: 1000
+width: 1080
 
 # The height of the image.
 # Default 1080
-height: 1000
+height: 1920
 
 # The higher the value the more details. Causes slower calculations.
 # Default 512
-max_iterations: 1024*10
+max_iterations: 1024*.5
 
 # The resolution of the image. The slower the value the more zoomed in.
 # Default 1.5
 # Limit     0.00000000000001
-resolution: 0.00000000000000001
+resolution: 0.00000000001
 # 0.000000002
 
 # ! All directions are for the virtual "camera" !
