@@ -1,3 +1,4 @@
+import time
 import numpy as np
 import pycuda.driver as cuda
 import pycuda.autoinit
@@ -5,6 +6,7 @@ from pycuda.compiler import SourceModule
 from PIL import Image
 import yaml
 import imageio
+import moviepy.editor as mp
 
 # User Config
 with open("config.yml", "r") as f:
@@ -36,6 +38,9 @@ if do_animation:
     target_center_y = config["target_center_y"]
     target_resolution = config["target_resolution"]
     target_frames = config["target_frames"]
+    target_frame_rate = config["target_frame_rate"]
+    should_make_webm = bool(config["should_make_webm"])
+    webm_bitrate = config["webm_bitrate"]
 
 print(f"""
 Using the following configuration:
@@ -71,6 +76,16 @@ elif use_profile == 3:
     resolution = 0.00001
     center_x = -.7173625
     center_y = -0.2505295
+elif use_profile == 4:
+    max_iterations = 1024*10
+    resolution = 0.00000000000001
+    center_x = -1.99998588123072
+    center_y = 0
+elif use_profile == 5:
+    max_iterations = 1024*10
+    resolution = 0.0000000000001
+    center_x = -0.7765929020241705
+    center_y = -0.13664090727687
 
 
 aspect = (height / width)
@@ -178,14 +193,24 @@ if use_color:
     else:
         frames = []
 
-        # TODO: Fix
+        # Define the initial and target values for center_x, center_y, and resolution
+        initial_center_x = center_x
+        initial_center_y = center_y
+        initial_resolution = resolution
 
-        center_x_increments = np.linspace(center_x, target_center_x, target_frames)
-        center_y_increments = np.linspace(center_y, target_center_y, target_frames)
-        resolution_increments = np.linspace(resolution, target_resolution, target_frames)
+        target_center_x = target_center_x
+        target_center_y = target_center_y
+        target_resolution = target_resolution
+
+        # Calculate the increments using linear interpolation
+        center_x_increments = np.ones(target_frames) * target_center_x
+        center_x_increments[0:target_frames//6] = np.linspace(initial_center_x, target_center_x, target_frames // 6)
+        center_y_increments = np.linspace(initial_center_y, target_center_y, target_frames)
+        resolution_increments = np.geomspace(initial_resolution, target_resolution, target_frames)
 
         for i in range(target_frames):
             print("starting frame " + str(i))
+
             # Get the current values for center and resolution
             current_center_x = center_x_increments[i]
             current_center_y = center_y_increments[i]
@@ -213,10 +238,22 @@ if use_color:
 
             # Convert the current frame to an image and append it to the frames list
             mandelbrot_image = Image.fromarray(colored_mandelbrot_cpu)
-            frames.append(np.array(mandelbrot_image))
+            frames.append(mandelbrot_image)
 
         print(len(frames))
-        imageio.mimsave("mandelbrot_animation.gif", frames, duration=0.2)
+        frames_reverse = frames.copy()
+        frames_reverse.pop()
+        frames_reverse.reverse()
+        frames_reverse.pop()
+
+        frames = frames + frames_reverse
+
+        print("Converting frames to gif")
+        imageio.mimsave("mandelbrot_animation.gif", frames, loop=4, fps=target_frame_rate)
+        if should_make_webm:
+            print("Converting gif to webm")
+            clip = mp.VideoFileClip("mandelbrot_animation.gif")
+            clip.write_videofile("mandelbrot_animation.webm", bitrate=webm_bitrate, fps=target_frame_rate)
 else:
     # Copy the result back to the CPU
     output_cpu = np.empty((height, width), dtype=np.int32)

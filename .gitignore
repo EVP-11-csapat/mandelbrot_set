@@ -1,3 +1,4 @@
-mandelbrot_set.png
-frame_*
-mandelbrot_animation.gif
+*.png
+*.gif
+frames/*
+*.webm

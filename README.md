@@ -12,7 +12,7 @@ To generate an image of the Mandelbrot set, run the following command:
 python main.py
 ```
 
-This will generate an image named `mandelbrot.png` in the current directory.
+This will generate an image named `mandelbrot_set.png` in the current directory.
 
 ## Configuration
 
