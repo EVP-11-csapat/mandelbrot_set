@@ -4,15 +4,15 @@ use_dark_mode: True
 
 # The width of the image.
 # Default 1920
-width: 10000
+width: 800
 
 # The height of the image.
 # Default 1080
-height: 10000
+height: 600
 
 # The higher the value the more details. Causes slower calculations.
 # Default 512
-max_iterations: 1024*.05
+max_iterations: 1024*.02
 
 # The resolution of the image. The slower the value the more zoomed in.
 # Default 1.5
@@ -23,7 +23,7 @@ resolution: 1.5
 
 # The center of the viewport on the x axis. Negative values are to the left.
 # Default -.5
-center_x: -.5
+center_x: -0.5
 
 # The center of the viewport on the y axis. Negative values are up.
 # Default 0
@@ -31,7 +31,7 @@ center_y: 0
 
 # Use color or not
 # Default True
-use_color: True
+use_color: False
 
 # The profile ignores the above values and uses predefined values instead.
 # If set to -1 it is disabled
