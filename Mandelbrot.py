@@ -12,6 +12,7 @@ class Util:
     """
     Utility class for static methods.
     """
+
     @staticmethod
     def save_image(array, name):
         """
@@ -43,6 +44,7 @@ class Mandelbrot:
     Generates mandelbrot set with cuda.
     Can generate images, and animations, with or without color.
     """
+
     def __init__(self, width: int, height: int, resolution: np.double, center_x: np.double, center_y: np.double,
                  max_iterations: int, use_dark_mode: bool, use_color: bool):
         """
@@ -263,21 +265,23 @@ class Mandelbrot:
             self.__run_color()
             return self.__copy_back_color_cpu()
 
-    def update_params(self, new_center_x: np.double, new_center_y: np.double,
-                      new_resolution: np.double, new_max_iter: int):
+    def update_params(self, new_center_x: np.double | None, new_center_y: np.double | None,
+                      new_resolution: np.double | None, new_max_iter: int | None, new_use_color: bool | None):
         """
         Update the settings without having to reinitialize.
         :param new_center_x: The center of the view on the x (real) axis.
         :param new_center_y: The center of the view on the y (imaginary) axis.
         :param new_resolution: The resolution of the generation. (Smaller number more zoomed in).
         :param new_max_iter: The maximum iterations for the function (contrast of the image).
+        :param new_use_color: Weather or not to use color.
         :return: None
         """
         self.__reset()
-        self.center_x = new_center_x
-        self.center_y = new_center_y
-        self.resolution = new_resolution
-        self.max_iterations = new_max_iter
+        self.center_x = new_center_x if new_center_x is not None else self.center_x
+        self.center_y = new_center_y if new_center_y is not None else self.center_y
+        self.resolution = new_resolution if new_resolution is not None else self.resolution
+        self.max_iterations = new_max_iter if new_max_iter is not None else self.max_iterations
+        self.use_color = new_use_color if new_use_color is not None else self.use_color
 
     def __calculate_increments(self, target_center_x, target_center_y, target_resolution,
                                target_frames, move_percent, transition_function, starting_resolution,
@@ -376,18 +380,18 @@ class Mandelbrot:
 
 def main():
     mandelbrot = Mandelbrot(800, 600, np.double(2), np.double(-.5), np.double(0),
-                            int(1024*10), False, True)
+                            int(1024 * 10), False, True)
     # mandelbrot = Mandelbrot(800, 600, np.double(0.000000000000001), np.double(-1.99998588123072), np.double(0),
     #                         int(1024 * 10), True, True)
 
-    mandelbrot.animate(np.double(-1.99998588123072), 0, 0.000000000000001,
-                       20, 100, move_frame_percent=0.2, transition_method=Util.custom_ease_in_out)
+    # mandelbrot.animate(np.double(-1.99998588123072), 0, 0.000000000000001,
+    #                    20, 100, move_frame_percent=0.2, transition_method=Util.custom_ease_in_out)
 
-    # array = mandelbrot.generate()
-    # Util.save_image(array, "test")
-    # mandelbrot.update_params(np.double(-2.0), np.double(1.0), np.double(1.5), 1024*10)
-    # array = mandelbrot.generate()
-    # Util.save_image(array, "test2")
+    array = mandelbrot.generate()
+    Util.save_image(array, "test")
+    mandelbrot.update_params(None, None, None, None, False)
+    array = mandelbrot.generate()
+    Util.save_image(array, "test2")
     mandelbrot.free()
 
 

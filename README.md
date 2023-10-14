@@ -35,3 +35,117 @@ The following profiles are available:
 * `DEFAULT`: The default profile.
 * `SMALL`: A smaller version of the image.
 * `SPIRALS`: A version of the image that focuses on the spirals.
+
+# Pygame Mandelbrot Set Viewer
+
+This is a simple Mandelbrot Set viewer created using Pygame. You can explore the Mandelbrot Set using the following keybindings:
+
+## Keybindings
+
+### General Controls
+
+- **Esc:** Quit the application.
+
+### Copy Configuration
+
+- **C:** Copy the current configuration to the clipboard, which includes `[CENTER_X]`, `[CENTER_Y]`, `[RESOLUTION]`, and `[MAX_ITERATIONS]`.
+
+### Reset Configuration
+
+- **R:** Reset to the default configuration, which sets:
+  - Center X: -0.5
+  - Center Y: 0.0
+  - Resolution: 1.5
+  - Max Iterations: 255
+
+### Toggle Color
+
+- **F:** Toggle color visualization on or off.
+
+### Predefined Macros
+
+You can jump to predefined configurations using these keys:
+
+- **1:** Predefined Configuration 1
+  - Center X: -1.484585267
+  - Center Y: 0.0
+  - Resolution: 1e-08
+  - Max Iterations: 5120
+
+- **2:** Predefined Configuration 2
+  - Center X: -0.717
+  - Center Y: -0.2498
+  - Resolution: 0.0001
+  - Max Iterations: 5120
+
+- **3:** Predefined Configuration 3
+  - Center X: -0.7173625
+  - Center Y: -0.2505295
+  - Resolution: 1e-05
+  - Max Iterations: 5120
+
+- **4:** Predefined Configuration 4
+  - Center X: -1.99998588123072
+  - Center Y: 0.0
+  - Resolution: 1e-14
+  - Max Iterations: 1023
+
+- **5:** Predefined Configuration 5
+  - Center X: -0.7765929020241705
+  - Center Y: -0.13664090727687
+  - Resolution: 1e-13
+  - Max Iterations: 2048
+
+### Iteration Adjustment
+
+- **]:** Increase the maximum number of iterations (Max Iterations) fivefold.
+
+### Save Images
+
+- **V:** Save a rotated image as "small_export".
+
+- **B:** Save a large image.
+
+### Animation
+
+- **N:** Save the animation to the current frame.
+
+### Speed Adjustment
+
+- **T:** Set speed factor to 10.0 (slow).
+
+- **Y:** Set speed factor to 50.0 (fast).
+
+### Navigation
+
+You can navigate through the Mandelbrot set using the following keys:
+
+- **A:** Move left.
+
+- **D:** Move right.
+
+- **W:** Move up.
+
+- **S:** Move down.
+
+### Zoom
+
+- **E:** Zoom in (decrease resolution).
+
+- **Q:** Zoom out (increase resolution).
+
+### Iteration Adjustment
+
+- **Z:** Decrease the maximum number of iterations per frame.
+
+- **X:** Increase the maximum number of iterations per frame.
+
+## Configuration Limits
+
+- The center X and center Y are limited to the range [-2.0, 2.0].
+
+- Resolution is limited within a predefined range (MIN_RESOLUTION to MAX_RESOLUTION).
+
+- Maximum iterations are limited to a maximum of 10,240.
+
+## Enjoy exploring the Mandelbrot Set!
