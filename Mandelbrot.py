@@ -2,6 +2,13 @@ import numpy as np
 from pycuda.compiler import SourceModule
 import pycuda.driver as cuda
 import pycuda.autoinit
+from PIL import Image
+
+
+def save_image(array, name):
+    mandelbrot_image = Image.fromarray(array)
+    mandelbrot_image.save(name + ".png")
+    mandelbrot_image.show()
 
 
 class Mandelbrot:
@@ -9,6 +16,8 @@ class Mandelbrot:
                  max_iterations: int, use_dark_mode: bool, use_color: bool):
         self.width = width
         self.height = height
+
+        self.aspect = np.double(height / width)
 
         self.resolution = resolution
 
@@ -34,8 +43,11 @@ class Mandelbrot:
         self.mandelbrot_gpu = None
         self.colorize_gpu = None
 
-        self.mandelbrot_output_gpu = cuda.mem_alloc(width * height * 4)
-        self.colored_mandelbrot_gpu = cuda.mem_alloc(3 * width * height)
+        self.mandelbrot_output_gpu = cuda.mem_alloc(self.width * self.height * 4)
+        self.colored_mandelbrot_gpu = cuda.mem_alloc(3 * self.width * self.height)
+
+        self.mandelbrot_output_cpu = np.empty((self.height, self.width), dtype=np.int32)
+        self.colored_mandelbrot_cpu = np.empty((self.height, self.width, 3), dtype=np.uint8)
 
         self.mandelbrot_kernel = """
             __global__ void mandelbrot(int *output, int width, int height, double x_min, double x_max, double y_min, double y_max, int max_iterations) {
@@ -91,15 +103,73 @@ class Mandelbrot:
         self.colorize_mod = SourceModule(self.colorize_kernel)
         self.colorize_gpu = self.colorize_mod.get_function("colorize")
 
-    def run(self):
-        self.mandelbrot_gpu(self.mandelbrot_output_gpu, np.int32(self.width), np.int32(self.height), self.x_min, self.x_max,
-                       self.y_min, self.y_max, np.int32(self.max_iterations),
-                       block=self.mandelbrot_block_size, grid=self.mandelbrot_grid_size)
+    def __calculate_min_max(self, center_x, center_y, resolution):
+        x_min = np.double(center_x - resolution)
+        x_max = np.double(center_x + resolution)
+        y_min = np.double(center_y - (resolution * self.aspect))
+        y_max = np.double(center_y + (resolution * self.aspect))
+        return x_min, x_max, y_min, y_max
+
+    def __run(self, center_x, center_y, resolution):
+        x_min, x_max, y_min, y_max = self.__calculate_min_max(center_x, center_y, resolution)
+        self.mandelbrot_gpu(self.mandelbrot_output_gpu, np.int32(self.width), np.int32(self.height), x_min, x_max,
+                            y_min, y_max, np.int32(self.max_iterations),
+                            block=self.mandelbrot_block_size, grid=self.mandelbrot_grid_size)
+
+    def __run_color(self):
+        self.colorize_gpu(self.colored_mandelbrot_gpu, self.mandelbrot_output_gpu,
+                          np.int32(self.width), np.int32(self.height), np.int32(self.max_iterations),
+                     block=self.colorize_block_size, grid=self.colorize_grid_size)
+
+    def __reset(self):
+        self.mandelbrot_output_cpu = np.empty((self.height, self.width), dtype=np.int32)
+        self.colored_mandelbrot_cpu = np.empty((self.height, self.width, 3), dtype=np.uint8)
+        self.mandelbrot_output_gpu.free()
+        self.colored_mandelbrot_gpu.free()
+
+    def __copy_back_cpu(self):
+        cuda.memcpy_dtoh(self.mandelbrot_output_cpu, self.mandelbrot_output_gpu)
+
+        output_normalized = (255 * (self.mandelbrot_output_cpu - np.min(self.mandelbrot_output_cpu)) /
+                             np.ptp(self.mandelbrot_output_cpu)).astype(np.uint8)
+
+        self.__reset()
+
+        return output_normalized
+
+    def __copy_back_color_cpu(self):
+        cuda.memcpy_dtoh(self.colored_mandelbrot_cpu, self.colored_mandelbrot_gpu)
+        colored_copy = self.colored_mandelbrot_cpu.copy()
+
+        self.__reset()
+
+        return colored_copy
+
+    def calculate(self):
+        self.__run(self.center_x, self.center_y, self.resolution)
+
+        if not self.use_color:
+            return self.__copy_back_cpu()
+        else:
+            self.__run_color()
+            return self.__copy_back_color_cpu()
+
+    def update_params(self, new_center_x: np.double, new_center_y: np.double,
+                      new_resolution: np.double, new_max_iter: int):
+        self.__reset()
+        self.center_x = new_center_x
+        self.center_y = new_center_y
+        self.resolution = new_resolution
+        self.max_iterations = new_max_iter
 
 
 def main():
-    mandelbrot = Mandelbrot(1000, 1000, np.double(1.5), np.double(-.5), np.double(0),
-                            int(1024*.02), True, False)
+    mandelbrot = Mandelbrot(24000, 24000, np.double(0.0000000000001), np.double(-1.99998588123072), np.double(0),
+                            int(1024*10), True, True)
+
+    mb_array = mandelbrot.calculate()
+    save_image(mb_array, "test2")
+    print(mb_array.shape)
 
 
 if __name__ == "__main__":
