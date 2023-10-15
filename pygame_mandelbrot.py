@@ -101,6 +101,11 @@ def save_file():
             f.write(copy_text)
 
 
+def save_small_image(mandelbrot_image_to_save):
+    save_img = np.flipud(mandelbrot_image_to_save)
+    Util.save_image(np.rot90(save_img, 3), "small_export")
+
+
 speed_factor = 10.0
 should_generate = False
 running = True
@@ -173,8 +178,8 @@ while running:
 
             if event.key == pygame.K_v:
                 save_img = mandelbrot_image.copy()
-                save_img = np.flipud(save_img)
-                Util.save_image(np.rot90(save_img, 3), "small_export")
+                image_save_thread = threading.Thread(target=save_small_image, args=(save_img,))
+                image_save_thread.start()
 
             if event.key == pygame.K_b:
                 save_large_image()
