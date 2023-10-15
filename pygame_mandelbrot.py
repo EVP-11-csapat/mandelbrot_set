@@ -25,7 +25,8 @@ previous_center_x = None
 previous_center_y = None
 resolution = np.double(1.5)
 max_iterations = 255
-use_color = True
+normal_color = True
+use_grayscale = False
 
 resource_lock = threading.Lock()
 
@@ -51,7 +52,7 @@ def save_animation_to_here():
     mandelbrot.free()
 
     mandelbrot = Mandelbrot(1000, 1000, np.double(2), np.double(-.5), np.double(0),
-                            max_iterations, True, use_color)
+                            max_iterations, True, normal_color)
     mandelbrot.animate(center_x, center_y, resolution, 20, 100, False,
                        True, "Mandelbrot_export_animation")
 
@@ -65,14 +66,14 @@ def save_large_image():
     mandelbrot.free()
 
     mandelbrot = Mandelbrot(16000, 16000, resolution, center_x, center_y,
-                            max_iterations, True, use_color)
+                            max_iterations, True, normal_color)
     large_image = mandelbrot.generate()
     Util.save_image(large_image, "large_export")
     mandelbrot.free()
 
 
 def update_values():
-    mandelbrot.update_params(center_x, center_y, resolution, max_iterations, use_color, img_width, img_height)
+    mandelbrot.update_params(center_x, center_y, resolution, max_iterations, normal_color, img_width, img_height)
 
 
 def update_static_elements(fps, delta_time):
@@ -189,7 +190,10 @@ while running:
                     max_iterations = 255
 
             if event.key == pygame.K_f:
-                use_color = not use_color
+                normal_color = not normal_color
+
+            if event.key == pygame.K_g:
+                use_grayscale = not use_grayscale
 
             # Defined macros
             if event.key == pygame.K_1:
@@ -229,7 +233,7 @@ while running:
 
             if event.key == pygame.K_RIGHTBRACKET:
                 with resource_lock:
-                    max_iterations = 1024*5
+                    max_iterations = 1024 * 5
 
             if event.key == pygame.K_v:
                 save_img = mandelbrot_image.copy()
@@ -292,7 +296,7 @@ while running:
         center_x = np.clip(center_x, -2.0, 2.0)
         center_y = np.clip(center_y, -2.0, 2.0)
         resolution = np.clip(resolution, MIN_RESOLUTION, MAX_RESOLUTION)
-        max_iterations = np.clip(max_iterations, 1, 1024*10)
+        max_iterations = np.clip(max_iterations, 1, 1024 * 10)
 
     screen.fill(GRAY)
 
@@ -325,7 +329,10 @@ while running:
         mandelbrot_image = np.rot90(mandelbrot_image, 3)
 
     # TODO: Fix black and white mode
-    scaled_mandelbrot_image = pygame.transform.scale(pygame.surfarray.make_surface(mandelbrot_image), (LEFT_PANE_WIDTH, HEIGHT))
+    surface = pygame.surfarray.make_surface(mandelbrot_image)
+    if use_grayscale:
+        surface = pygame.transform.grayscale(surface)
+    scaled_mandelbrot_image = pygame.transform.scale(surface, (LEFT_PANE_WIDTH, HEIGHT))
     screen.blit(scaled_mandelbrot_image, (0, 0))
 
     pygame.draw.rect(screen, GRAY, (LEFT_PANE_WIDTH, 0, RIGHT_PANE_WIDTH, HEIGHT))

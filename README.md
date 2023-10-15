@@ -67,7 +67,11 @@ This is a simple Mandelbrot Set viewer created using Pygame. You can explore the
 
 ### Toggle Color
 
-- **F:** Toggle color visualization on or off.
+- **F:** Toggle color visualization normal and alternative colors.
+
+- **G:** Toggle grayscale version.
+
+- !!! Grayscale + alternative color is very slow !!!
 
 ### Predefined Macros
 
