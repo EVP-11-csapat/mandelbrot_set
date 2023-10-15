@@ -25,6 +25,18 @@ class Util:
         mandelbrot_image.save(name + ".png")
         mandelbrot_image.show()
 
+    @staticmethod
+    def calculate_center(img_x, img_y, width, height, resolution, center_x, center_y):
+        aspect = (height / width)
+
+        left = center_x - resolution
+        bottom = center_y - (resolution * aspect)
+
+        translate_x = (img_x / width) * (resolution * 2)
+        translate_y = (img_y / width) * (resolution * 2)
+
+        return np.double(translate_x + left), np.double(translate_y + bottom)
+
     # Custom ease in out functions
     # Can define any function and pass it as parameter to the animation function
     @staticmethod

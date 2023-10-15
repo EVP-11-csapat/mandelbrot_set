@@ -40,6 +40,13 @@ The following profiles are available:
 
 This is a simple Mandelbrot Set viewer created using Pygame. You can explore the Mandelbrot Set using the following keybindings:
 
+## Mouse Controls
+
+- **Left Click:** Move to the clicked position within the left pane.
+- **Scroll Up:** Zoom in (decrease resolution).
+- **Scroll Down:** Zoom out (increase resolution).
+- **Back Button (on mouse):** Restore the previous position.
+
 ## Keybindings
 
 ### General Controls
@@ -48,7 +55,7 @@ This is a simple Mandelbrot Set viewer created using Pygame. You can explore the
 
 ### Copy Configuration
 
-- **C:** Copy the current configuration to the clipboard, which includes `[CENTER_X]`, `[CENTER_Y]`, `[RESOLUTION]`, and `[MAX_ITERATIONS]`.
+- **C:** Save the current configuration in a separate thread.
 
 ### Reset Configuration
 
@@ -102,7 +109,7 @@ You can jump to predefined configurations using these keys:
 
 ### Save Images
 
-- **V:** Save a rotated image as "small_export".
+- **V:** Save a small rotated image in a separate thread.
 
 - **B:** Save a large image.
 
@@ -111,6 +118,8 @@ You can jump to predefined configurations using these keys:
 - **N:** Save the animation to the current frame.
 
 ### Speed Adjustment
+
+- **U:** Set speed factor to 3.0 (ultra slow)
 
 - **T:** Set speed factor to 10.0 (slow).
 

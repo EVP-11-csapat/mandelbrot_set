@@ -19,6 +19,8 @@ WHITE = (255, 255, 255)
 
 center_x = np.double(-.5)
 center_y = np.double(0)
+previous_center_x = None
+previous_center_y = None
 resolution = np.double(1.5)
 max_iterations = 255
 use_color = True
@@ -106,6 +108,29 @@ def save_small_image(mandelbrot_image_to_save):
     Util.save_image(np.rot90(save_img, 3), "small_export")
 
 
+def move_to_clicked(mouse_x, mouse_y):
+    global center_x, center_y
+    global previous_center_x, previous_center_y
+    with resource_lock:
+        previous_center_x = center_x
+        previous_center_y = center_y
+        center_x, center_y = Util.calculate_center(
+            mouse_x, mouse_y, LEFT_PANE_WIDTH, HEIGHT, resolution, center_x, center_y
+        )
+
+
+def restore_position():
+    global center_x, center_y
+    global previous_center_x, previous_center_y
+
+    if previous_center_x is not None:
+        with resource_lock:
+            center_x = previous_center_x
+            previous_center_x = None
+            center_y = previous_center_y
+            previous_center_y = None
+
+
 speed_factor = 10.0
 should_generate = False
 running = True
@@ -117,6 +142,25 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                if event.pos[0] < LEFT_PANE_WIDTH:
+                    mouse_x, mouse_y = event.pos
+                    move_thread = threading.Thread(target=move_to_clicked, args=(mouse_x, mouse_y,))
+                    move_thread.start()
+
+            if event.button == 6:
+                restore_thread = threading.Thread(target=restore_position)
+                restore_thread.start()
+
+            if event.button == 4:
+                with resource_lock:
+                    resolution /= 1.1
+
+            if event.button == 5:
+                with resource_lock:
+                    resolution *= 1.1
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
@@ -192,6 +236,9 @@ while running:
 
             if event.key == pygame.K_y:
                 speed_factor = 50.0
+
+            if event.key == pygame.K_u:
+                speed_factor = 3
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_a]:
