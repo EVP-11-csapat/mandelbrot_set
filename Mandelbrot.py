@@ -62,7 +62,7 @@ class Mandelbrot:
         """
         Initialize the generator.
         :param width: The width of the image in pixels.
-        :param height: The height of the image in heights.
+        :param height: The height of the image in pixels.
         :param resolution: The resolution of the generation. (Smaller number more zoomed in).
         :param center_x: The center of the view on the x (real) axis.
         :param center_y: The center of the view on the y (imaginary) axis.
@@ -278,7 +278,8 @@ class Mandelbrot:
             return self.__copy_back_color_cpu()
 
     def update_params(self, new_center_x: np.double | None, new_center_y: np.double | None,
-                      new_resolution: np.double | None, new_max_iter: int | None, new_use_color: bool | None):
+                      new_resolution: np.double | None, new_max_iter: int | None, new_use_color: bool | None,
+                      new_width: int | None, new_height: int | None):
         """
         Update the settings without having to reinitialize.
         :param new_center_x: The center of the view on the x (real) axis.
@@ -286,6 +287,8 @@ class Mandelbrot:
         :param new_resolution: The resolution of the generation. (Smaller number more zoomed in).
         :param new_max_iter: The maximum iterations for the function (contrast of the image).
         :param new_use_color: Weather or not to use color.
+        :param new_width: The width of the image in pixels.
+        :param new_height: The height of the image in pixels.
         :return: None
         """
         self.__reset()
@@ -294,6 +297,8 @@ class Mandelbrot:
         self.resolution = new_resolution if new_resolution is not None else self.resolution
         self.max_iterations = new_max_iter if new_max_iter is not None else self.max_iterations
         self.use_color = new_use_color if new_use_color is not None else self.use_color
+        self.width = new_width if new_width is not None else self.width
+        self.height = new_height if new_height is not None else self.height
 
     def __calculate_increments(self, target_center_x, target_center_y, target_resolution,
                                target_frames, move_percent, transition_function, starting_resolution,

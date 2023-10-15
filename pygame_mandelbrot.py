@@ -17,6 +17,8 @@ MAX_RESOLUTION = 2.0
 GRAY = (100, 100, 100)
 WHITE = (255, 255, 255)
 
+img_width = LEFT_PANE_WIDTH
+img_height = HEIGHT
 center_x = np.double(-.5)
 center_y = np.double(0)
 previous_center_x = None
@@ -29,7 +31,7 @@ resource_lock = threading.Lock()
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
-mandelbrot = Mandelbrot(LEFT_PANE_WIDTH, HEIGHT, resolution, center_x,
+mandelbrot = Mandelbrot(img_width, img_height, resolution, center_x,
                         center_y, max_iterations, False, True)
 
 font = pygame.font.Font(None, 24)
@@ -55,6 +57,7 @@ def save_animation_to_here():
 
     mandelbrot.free()
 
+
 def save_large_image():
     global mandelbrot
     pygame.quit()
@@ -69,7 +72,7 @@ def save_large_image():
 
 
 def update_values():
-    mandelbrot.update_params(center_x, center_y, resolution, max_iterations, use_color)
+    mandelbrot.update_params(center_x, center_y, resolution, max_iterations, use_color, img_width, img_height)
 
 
 def update_static_elements(fps, delta_time):
@@ -90,6 +93,12 @@ def update_static_elements(fps, delta_time):
 
     max_iterations_text = font.render(f'Max Iterations: {max_iterations}', True, WHITE)
     screen.blit(max_iterations_text, (LEFT_PANE_WIDTH + 10, 210))
+
+    width_text = font.render(f'Width: {img_width}', True, WHITE)
+    screen.blit(width_text, (LEFT_PANE_WIDTH + 10, 250))
+
+    height_text = font.render(f'Height: {img_height}', True, WHITE)
+    screen.blit(height_text, (LEFT_PANE_WIDTH + 10, 290))
 
 
 def save_file():
@@ -137,6 +146,8 @@ running = True
 clock = pygame.time.Clock()
 mandelbrot_image = mandelbrot.generate()
 mandelbrot_image = np.rot90(mandelbrot_image, 3)
+prev_is_moving = False
+frame_hold = 0
 while running:
     delta_time = clock.tick(FPS) / 1000.0
     for event in pygame.event.get():
@@ -240,7 +251,11 @@ while running:
             if event.key == pygame.K_u:
                 speed_factor = 3
 
+    is_moving = False
     keys = pygame.key.get_pressed()
+    if (keys[pygame.K_a] or keys[pygame.K_d] or keys[pygame.K_w] or keys[pygame.K_s] or keys[pygame.K_e] or
+            keys[pygame.K_q] or keys[pygame.K_z] or keys[pygame.K_x]):
+        is_moving = True
     if keys[pygame.K_a]:
         with resource_lock:
             center_x -= (0.1 * resolution) * speed_factor * delta_time
@@ -281,14 +296,37 @@ while running:
 
     screen.fill(GRAY)
 
+    if is_moving:
+        img_width = LEFT_PANE_WIDTH // 2
+        img_height = HEIGHT // 2
+        should_generate = True
+        prev_is_moving = is_moving
+    else:
+        if max_iterations > 5500 or resolution < 0.00000000001:
+            img_width = int(LEFT_PANE_WIDTH // 1.5)
+            img_height = int(HEIGHT // 1.5)
+        else:
+            img_width = LEFT_PANE_WIDTH
+            img_height = HEIGHT
+
+    if is_moving and not prev_is_moving:
+        should_generate = True
+    elif not is_moving and prev_is_moving and frame_hold < 3:
+        should_generate = False
+        frame_hold += 1
+    elif not is_moving and prev_is_moving and frame_hold == 3:
+        should_generate = True
+        frame_hold = 0
+        prev_is_moving = is_moving
+
     if should_generate:
         mandelbrot_image = mandelbrot.generate()
         mandelbrot_image = np.flipud(mandelbrot_image)
         mandelbrot_image = np.rot90(mandelbrot_image, 3)
 
     # TODO: Fix black and white mode
-    mandelbrot_surface = pygame.surfarray.make_surface(mandelbrot_image)
-    screen.blit(mandelbrot_surface, (0, 0))
+    scaled_mandelbrot_image = pygame.transform.scale(pygame.surfarray.make_surface(mandelbrot_image), (LEFT_PANE_WIDTH, HEIGHT))
+    screen.blit(scaled_mandelbrot_image, (0, 0))
 
     pygame.draw.rect(screen, GRAY, (LEFT_PANE_WIDTH, 0, RIGHT_PANE_WIDTH, HEIGHT))
 
