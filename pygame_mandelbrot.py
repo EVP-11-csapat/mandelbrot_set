@@ -2,6 +2,7 @@ import pygame
 import numpy as np
 from Mandelbrot import Mandelbrot, Util
 import pyperclip
+import threading
 
 pygame.init()
 
@@ -21,6 +22,8 @@ center_y = np.double(0)
 resolution = np.double(1.5)
 max_iterations = 255
 use_color = True
+
+resource_lock = threading.Lock()
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
@@ -87,6 +90,17 @@ def update_static_elements(fps, delta_time):
     screen.blit(max_iterations_text, (LEFT_PANE_WIDTH + 10, 210))
 
 
+def save_file():
+    with resource_lock:
+        copy_text = (((copy_template.replace("[CENTER_X]", str(center_x)).
+                       replace("[CENTER_Y]", str(center_y))).
+                      replace("[RESOLUTION]", str(resolution))).
+                     replace("[MAX_ITERATIONS]", str(max_iterations)))
+        pyperclip.copy(copy_text)
+        with open('config_export.txt', 'w') as f:
+            f.write(copy_text)
+
+
 speed_factor = 10.0
 should_generate = False
 running = True
@@ -104,54 +118,58 @@ while running:
                 running = False
 
             if event.key == pygame.K_c:
-                copy_text = (((copy_template.replace("[CENTER_X]", str(center_x)).
-                             replace("[CENTER_Y]", str(center_y))).
-                             replace("[RESOLUTION]", str(resolution))).
-                             replace("[MAX_ITERATIONS]", str(max_iterations)))
-                pyperclip.copy(copy_text)
+                save_thread = threading.Thread(target=save_file)
+                save_thread.start()
 
             if event.key == pygame.K_r:
-                center_x = -.5
-                center_y = 0
-                resolution = 1.5
-                max_iterations = 255
+                with resource_lock:
+                    center_x = -.5
+                    center_y = 0
+                    resolution = 1.5
+                    max_iterations = 255
 
             if event.key == pygame.K_f:
                 use_color = not use_color
 
             # Defined macros
             if event.key == pygame.K_1:
-                center_x = -1.484585267
-                center_y = 0.0
-                resolution = 1e-08
-                max_iterations = 5120
+                with resource_lock:
+                    center_x = -1.484585267
+                    center_y = 0.0
+                    resolution = 1e-08
+                    max_iterations = 5120
 
             if event.key == pygame.K_2:
-                resolution = 0.0001
-                center_x = -.717
-                center_y = -0.2498
-                max_iterations = 5120
+                with resource_lock:
+                    resolution = 0.0001
+                    center_x = -.717
+                    center_y = -0.2498
+                    max_iterations = 5120
 
             if event.key == pygame.K_3:
-                center_x = -0.7173625
-                center_y = -0.2505295
-                resolution = 1e-05
-                max_iterations = 5120
+                with resource_lock:
+                    center_x = -0.7173625
+                    center_y = -0.2505295
+                    resolution = 1e-05
+                    max_iterations = 5120
 
             if event.key == pygame.K_4:
-                center_x = -1.99998588123072
-                center_y = 0.0
-                resolution = 1e-14
-                max_iterations = 1023
+                with resource_lock:
+                    center_x = -1.99998588123072
+                    center_y = 0.0
+                    resolution = 1e-14
+                    max_iterations = 1023
 
             if event.key == pygame.K_5:
-                center_x = -0.7765929020241705
-                center_y = -0.13664090727687
-                resolution = 1e-13
-                max_iterations = 2048
+                with resource_lock:
+                    center_x = -0.7765929020241705
+                    center_y = -0.13664090727687
+                    resolution = 1e-13
+                    max_iterations = 2048
 
             if event.key == pygame.K_RIGHTBRACKET:
-                max_iterations = 1024*5
+                with resource_lock:
+                    max_iterations = 1024*5
 
             if event.key == pygame.K_v:
                 save_img = mandelbrot_image.copy()
@@ -172,33 +190,42 @@ while running:
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_a]:
-        center_x -= (0.1 * resolution) * speed_factor * delta_time
+        with resource_lock:
+            center_x -= (0.1 * resolution) * speed_factor * delta_time
 
     if keys[pygame.K_d]:
-        center_x += (0.1 * resolution) * speed_factor * delta_time
+        with resource_lock:
+            center_x += (0.1 * resolution) * speed_factor * delta_time
 
     if keys[pygame.K_w]:
-        center_y -= (0.1 * resolution) * speed_factor * delta_time
+        with resource_lock:
+            center_y -= (0.1 * resolution) * speed_factor * delta_time
 
     if keys[pygame.K_s]:
-        center_y += (0.1 * resolution) * speed_factor * delta_time
+        with resource_lock:
+            center_y += (0.1 * resolution) * speed_factor * delta_time
 
     if keys[pygame.K_e]:
-        resolution /= 1.1
+        with resource_lock:
+            resolution /= 1.1
 
     if keys[pygame.K_q]:
-        resolution *= 1.1
+        with resource_lock:
+            resolution *= 1.1
 
     if keys[pygame.K_z]:
-        max_iterations -= int(speed_factor * delta_time * 10)
+        with resource_lock:
+            max_iterations -= int(speed_factor * delta_time * 10)
 
     if keys[pygame.K_x]:
-        max_iterations += int(speed_factor * delta_time * 10)
+        with resource_lock:
+            max_iterations += int(speed_factor * delta_time * 10)
 
-    center_x = np.clip(center_x, -2.0, 2.0)
-    center_y = np.clip(center_y, -2.0, 2.0)
-    resolution = np.clip(resolution, MIN_RESOLUTION, MAX_RESOLUTION)
-    max_iterations = np.clip(max_iterations, 1, 1024*10)
+    with resource_lock:
+        center_x = np.clip(center_x, -2.0, 2.0)
+        center_y = np.clip(center_y, -2.0, 2.0)
+        resolution = np.clip(resolution, MIN_RESOLUTION, MAX_RESOLUTION)
+        max_iterations = np.clip(max_iterations, 1, 1024*10)
 
     screen.fill(GRAY)
 
