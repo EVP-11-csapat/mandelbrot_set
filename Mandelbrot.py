@@ -398,15 +398,10 @@ class Mandelbrot:
 def main():
     mandelbrot = Mandelbrot(800, 600, np.double(2), np.double(-.5), np.double(0),
                             int(1024 * 10), False, True)
-    # mandelbrot = Mandelbrot(800, 600, np.double(0.000000000000001), np.double(-1.99998588123072), np.double(0),
-    #                         int(1024 * 10), True, True)
-
-    # mandelbrot.animate(np.double(-1.99998588123072), 0, 0.000000000000001,
-    #                    20, 100, move_frame_percent=0.2, transition_method=Util.custom_ease_in_out)
 
     array = mandelbrot.generate()
     Util.save_image(array, "test")
-    mandelbrot.update_params(None, None, None, None, False)
+    mandelbrot.update_params(None, None, None, None, False, None, None)
     array = mandelbrot.generate()
     Util.save_image(array, "test2")
     mandelbrot.free()

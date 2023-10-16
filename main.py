@@ -199,10 +199,6 @@ if use_color:
         initial_center_y = center_y
         initial_resolution = resolution
 
-        target_center_x = target_center_x
-        target_center_y = target_center_y
-        target_resolution = target_resolution
-
         # Calculate the increments using linear interpolation
         center_x_increments = np.ones(target_frames) * target_center_x
         center_x_increments[0:target_frames//6] = np.linspace(initial_center_x, target_center_x, target_frames // 6)

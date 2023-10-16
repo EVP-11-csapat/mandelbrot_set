@@ -156,8 +156,7 @@ while running:
             running = False
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:
-                if event.pos[0] < LEFT_PANE_WIDTH:
+            if event.button == 1 and event.pos[0] < LEFT_PANE_WIDTH:
                     mouse_x, mouse_y = event.pos
                     move_thread = threading.Thread(target=move_to_clicked, args=(mouse_x, mouse_y,))
                     move_thread.start()
@@ -328,7 +327,6 @@ while running:
         mandelbrot_image = np.flipud(mandelbrot_image)
         mandelbrot_image = np.rot90(mandelbrot_image, 3)
 
-    # TODO: Fix black and white mode
     surface = pygame.surfarray.make_surface(mandelbrot_image)
     if use_grayscale:
         surface = pygame.transform.grayscale(surface)
