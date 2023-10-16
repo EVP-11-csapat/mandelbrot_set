@@ -4,3 +4,4 @@ frames/*
 *.webm
 .idea
 test*.*
+.scannerwork/*
