@@ -47,29 +47,42 @@ max_iterations = [MAX_ITERATIONS]
 
 def save_animation_to_here():
     global mandelbrot
-    pygame.quit()
+    saving_text = font.render('Saving Animation', True, WHITE)
+    screen.blit(saving_text, (LEFT_PANE_WIDTH + 10, 750))
+    pygame.display.flip()
     print("Saving animation")
     mandelbrot.free()
 
     mandelbrot = Mandelbrot(1000, 1000, np.double(2), np.double(-.5), np.double(0),
                             max_iterations, True, normal_color)
+
     mandelbrot.animate(center_x, center_y, resolution, 20, 100, False,
                        True, "Mandelbrot_export_animation")
 
     mandelbrot.free()
 
+    mandelbrot = Mandelbrot(img_width, img_height, resolution, center_x, center_y,
+                            max_iterations, False, normal_color)
+
 
 def save_large_image():
     global mandelbrot
-    pygame.quit()
     print("Saving large image")
+    saving_text = font.render('Saving Large Image', True, WHITE)
+    screen.blit(saving_text, (LEFT_PANE_WIDTH + 10, 750))
+    pygame.display.flip()
     mandelbrot.free()
 
     mandelbrot = Mandelbrot(16000, 16000, resolution, center_x, center_y,
                             max_iterations, True, normal_color)
+
     large_image = mandelbrot.generate()
     Util.save_image(large_image, "large_export")
+
     mandelbrot.free()
+
+    mandelbrot = Mandelbrot(img_width, img_height, resolution, center_x, center_y,
+                            max_iterations, False, normal_color)
 
 
 def update_values():
@@ -229,6 +242,13 @@ while running:
                     center_y = -0.13664090727687
                     resolution = 1e-13
                     max_iterations = 2048
+
+            if event.key == pygame.K_6:
+                with resource_lock:
+                    center_x = -0.17705852233003375
+                    center_y = -1.0781115359528353
+                    resolution = 3.629419681222355e-08
+                    max_iterations = 393
 
             if event.key == pygame.K_RIGHTBRACKET:
                 with resource_lock:
