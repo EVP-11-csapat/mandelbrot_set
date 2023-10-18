@@ -99,7 +99,7 @@ def update_static_elements(fps, delta_time):
     center_x_text = font.render(f'Center X: {center_x}', True, WHITE)
     screen.blit(center_x_text, (LEFT_PANE_WIDTH + 10, 90))
 
-    center_y_text = font.render(f'Center Y: {center_y}', True, WHITE)
+    center_y_text = font.render(f'Center Y: {center_y * -1}', True, WHITE)
     screen.blit(center_y_text, (LEFT_PANE_WIDTH + 10, 130))
 
     resolution_text = font.render(f'Resolution: {resolution}', True, WHITE)
@@ -122,8 +122,10 @@ def save_file():
                       replace("[RESOLUTION]", str(resolution))).
                      replace("[MAX_ITERATIONS]", str(max_iterations)))
         pyperclip.copy(copy_text)
-        with open('config_export.txt', 'w') as f:
-            f.write(copy_text)
+        with open('config_export.txt', 'a') as f:
+            if copy_text.startswith('\n'):
+                copy_text = copy_text[1:]
+            f.write(copy_text + "\n")
 
 
 def save_small_image(mandelbrot_image_to_save):

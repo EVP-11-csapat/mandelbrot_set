@@ -5,3 +5,4 @@ frames/*
 .idea
 test*.*
 .scannerwork/*
+config_export.txt

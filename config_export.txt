@@ -1,5 +1,15 @@
+center_x = -0.8225
+center_y = -0.38250000000000006
+resolution = 1.5
+max_iterations = 255
 
-center_x = -1.4474132965134192
-center_y = 0.0
-resolution = 0.0022982044873658437
-max_iterations = 68
+center_x = 0.24624999999999986
+center_y = -0.2024999999999999
+resolution = 1.5
+max_iterations = 255
+
+center_x = -0.2862500000000001
+center_y = 0.9862499999999998
+resolution = 0.3949968814591197
+max_iterations = 255
+
