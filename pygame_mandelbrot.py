@@ -99,7 +99,7 @@ def update_static_elements(fps, delta_time):
     center_x_text = font.render(f'Center X: {center_x}', True, WHITE)
     screen.blit(center_x_text, (LEFT_PANE_WIDTH + 10, 90))
 
-    center_y_text = font.render(f'Center Y: {center_y * -1}', True, WHITE)
+    center_y_text = font.render(f'Center Y: {-center_y} i', True, WHITE)
     screen.blit(center_y_text, (LEFT_PANE_WIDTH + 10, 130))
 
     resolution_text = font.render(f'Resolution: {resolution}', True, WHITE)

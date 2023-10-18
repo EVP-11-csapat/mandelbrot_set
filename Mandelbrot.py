@@ -68,7 +68,7 @@ class Mandelbrot:
         :param center_y: The center of the view on the y (imaginary) axis.
         :param max_iterations: The maximum iterations for the function (contrast of the image).
         :param use_dark_mode: If true the parts with maximum iteration are black in colored mode instead of white.
-        :param use_color: Weather or not to calculate color for pixels based on iteration number.
+        :param use_color: whether to calculate color for pixels based on iteration number.
         """
         self.width = width
         self.height = height
@@ -286,7 +286,7 @@ class Mandelbrot:
         :param new_center_y: The center of the view on the y (imaginary) axis.
         :param new_resolution: The resolution of the generation. (Smaller number more zoomed in).
         :param new_max_iter: The maximum iterations for the function (contrast of the image).
-        :param new_use_color: Weather or not to use color.
+        :param new_use_color: whether to use color.
         :param new_width: The width of the image in pixels.
         :param new_height: The height of the image in pixels.
         :return: None
@@ -345,8 +345,8 @@ class Mandelbrot:
         :param target_resolution: The resolution of the target generation. (Smaller number more zoomed in).
         :param fps: The framerate of the gif / webm.
         :param target_frames: The number of frames to generate for.
-        :param loop_animation: Weather or not to reverse the animation and append the reversed frames to the end.
-        :param convert_to_webm: Weather or not to convert the gif to a webm.
+        :param loop_animation: whether to reverse the animation and append the reversed frames to the end.
+        :param convert_to_webm: whether to convert the gif to a webm.
         :param name: The name of the file to save.
         :param webm_bitrate: The bitrate of the webm file.
         :param move_frame_percent: The percentage of the frames used for aligning the x-axis and y-axis.
