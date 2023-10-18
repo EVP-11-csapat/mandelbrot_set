@@ -1,6 +1,6 @@
-projectKey=test
-serverUrl=https://sonarqube.ntsexp.site
+projectKey=EVP-11-csapat_mandelbrot_set_AYtCEWSwQrbFjjzxNdxf
+serverUrl=https://sonar.ntsexp.site
 serverVersion=10.2.1.78527
-dashboardUrl=https://sonarqube.ntsexp.site/dashboard?id=test
-ceTaskId=AYs3oYnIJnS1ybol4hUc
-ceTaskUrl=https://sonarqube.ntsexp.site/api/ce/task?id=AYs3oYnIJnS1ybol4hUc
+dashboardUrl=https://sonar.ntsexp.site/dashboard?id=EVP-11-csapat_mandelbrot_set_AYtCEWSwQrbFjjzxNdxf
+ceTaskId=AYtCJQG7QrbFjjzxNdxv
+ceTaskUrl=https://sonar.ntsexp.site/api/ce/task?id=AYtCJQG7QrbFjjzxNdxv

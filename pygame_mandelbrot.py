@@ -56,8 +56,8 @@ def save_animation_to_here():
     mandelbrot = Mandelbrot(1000, 1000, np.double(2), np.double(-.5), np.double(0),
                             max_iterations, True, normal_color)
 
-    mandelbrot.animate(center_x, center_y, resolution, 20, 100, False,
-                       True, "Mandelbrot_export_animation")
+    mandelbrot.animate(center_x, center_y, resolution, 20, 100, True,
+                       True, "Mandelbrot_export_animation", transition_method=Util.custom_log)
 
     mandelbrot.free()
 
@@ -251,6 +251,13 @@ while running:
                     center_y = -1.0781115359528353
                     resolution = 3.629419681222355e-08
                     max_iterations = 393
+
+            if event.key == pygame.K_7:
+                with resource_lock:
+                    center_x = -1.7685429441646423
+                    center_y = 0.0007230271040435973
+                    resolution = 3.1444100043275464e-11
+                    max_iterations = 10240
 
             if event.key == pygame.K_RIGHTBRACKET:
                 with resource_lock:

@@ -50,6 +50,62 @@ class Util:
     def custom_ease_in_out(t):
         return (1 - math.cos(t * math.pi)) / 2
 
+    @staticmethod
+    def custom_log(t):
+        return 0.96 * math.log(t + 0.1) + 1 - math.log(1.1)
+
+    @staticmethod
+    def custom_boing(t: float):
+        c4 = (2 * math.pi) / 3
+
+        if t == 0.0:
+            return 0.0
+        elif t == 1.0:
+            return 1.0
+        else:
+            return math.pow(2, -10 * t) * math.sin((t * 10 - 0.75) * c4) + 1
+
+    @staticmethod
+    def custom_bounce(t: float):
+        c5 = (2 * math.pi) / 4.5
+
+        if t == 0.0:
+            return 0.0
+        elif t == 1.0:
+            return 1.0
+        elif t < 0.5:
+            return -(math.pow(2, 20 * t - 10) * math.sin((20 * t - 11.125) * c5)) / 2
+        else:
+            return (math.pow(2, -20 * t + 10) * math.sin((20 * t - 11.125) * c5)) / 2 + 1
+
+    @staticmethod
+    def ease_out_bounce(x: float) -> float:
+        n1 = 7.5625
+        d1 = 2.75
+
+        if x < 1 / d1:
+            return n1 * x * x
+        elif x < 2 / d1:
+            x -= 1.5 / d1
+            return n1 * x * x + 0.75
+        elif x < 2.5 / d1:
+            x -= 2.25 / d1
+            return n1 * x * x + 0.9375
+        else:
+            x -= 2.625 / d1
+            return n1 * x * x + 0.984375
+
+    @staticmethod
+    def ease_in_out_back(x: float) -> float:
+        c1 = 1.70158
+        c2 = c1 * 1.525
+
+        if x < 0.5:
+            return (pow(2 * x, 2) * ((c2 + 1) * 2 * x - c2)) / 2
+        else:
+            x = 2 * x - 2
+            return (pow(x, 2) * ((c2 + 1) * x + c2) + 2) / 2
+
 
 class Mandelbrot:
     """
@@ -399,11 +455,17 @@ def main():
     mandelbrot = Mandelbrot(800, 600, np.double(2), np.double(-.5), np.double(0),
                             int(1024 * 10), False, True)
 
-    array = mandelbrot.generate()
-    Util.save_image(array, "test")
-    mandelbrot.update_params(None, None, None, None, False, None, None)
-    array = mandelbrot.generate()
-    Util.save_image(array, "test2")
+    #array = mandelbrot.generate()
+    # Util.save_image(array, "test")
+    # mandelbrot.update_params(None, None, None, None, False, None, None)
+    # array = mandelbrot.generate()
+    # Util.save_image(array, "test2")
+
+    mandelbrot.animate(-1.484585267, 0.0, 1e-08,
+                       20, 100, False,
+                       False, transition_method=Util.custom_boing,
+                       move_frame_percent=0.4)
+
     mandelbrot.free()
 
 
