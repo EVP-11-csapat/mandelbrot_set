@@ -66,9 +66,9 @@ class Mandelbrot:
         :param resolution: The resolution of the generation. (Smaller number more zoomed in).
         :param center_x: The center of the view on the x (real) axis.
         :param center_y: The center of the view on the y (imaginary) axis.
-        :param max_iterations: The maximum iterations for the function (contrast of the image).
+        :param max_iterations: The maximum iterations for the function (roughly relates to the contrast of the image).
         :param use_dark_mode: If true the parts with maximum iteration are black in colored mode instead of white.
-        :param use_color: whether to calculate color for pixels based on iteration number.
+        :param use_color: Whether to calculate color for pixels based on iteration number.
         """
         self.width = width
         self.height = height
@@ -169,7 +169,7 @@ class Mandelbrot:
 
     def __calculate_min_max(self, center_x, center_y, resolution):
         """
-        Calculates the edges of the view based on the center coordinates and resolution..
+        Calculates the edges of the view based on the center coordinates and resolution.
         :param center_x: The center of the view on the x (real) axis.
         :param center_y: The center of the view on the y (imaginary) axis.
         :param resolution: The resolution of the generation. (Smaller number more zoomed in).
