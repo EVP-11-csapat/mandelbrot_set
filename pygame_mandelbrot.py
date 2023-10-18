@@ -1,3 +1,5 @@
+import time
+
 import pygame
 import numpy as np
 from Mandelbrot import Mandelbrot, Util
@@ -56,8 +58,9 @@ def save_animation_to_here():
     mandelbrot = Mandelbrot(1000, 1000, np.double(2), np.double(-.5), np.double(0),
                             max_iterations, True, normal_color)
 
-    mandelbrot.animate(center_x, center_y, resolution, 20, 100, True,
-                       True, "Mandelbrot_export_animation", transition_method=Util.custom_log)
+    mandelbrot.animate(center_x, center_y, resolution, 20, 100, False,
+                       True, "Mandelbrot_export_animation", transition_method=Util.custom_boing,
+                       move_frame_percent=.3)
 
     mandelbrot.free()
 
@@ -133,15 +136,26 @@ def save_small_image(mandelbrot_image_to_save):
     Util.save_image(np.rot90(save_img, 3), "small_export")
 
 
-def move_to_clicked(mouse_x, mouse_y):
+def move_to_clicked(mouse_x, mouse_y, duration=0.5, easing_function=Util.ease_out_quad, num_frames=60):
     global center_x, center_y
     global previous_center_x, previous_center_y
+
     with resource_lock:
         previous_center_x = center_x
         previous_center_y = center_y
-        center_x, center_y = Util.calculate_center(
-            mouse_x, mouse_y, LEFT_PANE_WIDTH, HEIGHT, resolution, center_x, center_y
-        )
+
+    target_center_x, target_center_y = Util.calculate_center(
+        mouse_x, mouse_y, LEFT_PANE_WIDTH, HEIGHT, resolution, center_x, center_y
+    )
+
+    for frame in range(num_frames):
+        t = frame / (num_frames - 1)  # Calculate the progress as a value between 0 and 1
+        eased_t = easing_function(t)
+
+        with resource_lock:
+            center_x = (1 - eased_t) * previous_center_x + eased_t * target_center_x
+            center_y = (1 - eased_t) * previous_center_y + eased_t * target_center_y
+        time.sleep(duration / num_frames)  # Sleep to control animation speed
 
 
 def restore_position():
