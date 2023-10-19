@@ -153,8 +153,11 @@ def move_to_clicked(mouse_x, mouse_y, duration=0.5, easing_function=Util.ease_ou
         eased_t = easing_function(t)
 
         with resource_lock:
-            center_x = (1 - eased_t) * previous_center_x + eased_t * target_center_x
-            center_y = (1 - eased_t) * previous_center_y + eased_t * target_center_y
+            try:
+                center_x = (1 - eased_t) * previous_center_x + eased_t * target_center_x
+                center_y = (1 - eased_t) * previous_center_y + eased_t * target_center_y
+            except TypeError:
+                pass
         time.sleep(duration / num_frames)  # Sleep to control animation speed
 
 
