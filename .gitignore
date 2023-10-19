@@ -2,7 +2,7 @@
 *.gif
 frames/*
 *.webm
-.idea
+.idea/*
 test*.*
 .scannerwork/*
 config_export.txt
